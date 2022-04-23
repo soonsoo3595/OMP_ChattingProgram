@@ -19,10 +19,8 @@ void send_msg(int *sock_cli){
     int sock = *sock_cli;
     char nameAndMsg[11000];
     
-    // add
     time_t current;
     struct tm *t;
-    // 
     
     while(1){
         fgets(msg, 10000, stdin);
@@ -30,12 +28,10 @@ void send_msg(int *sock_cli){
             close(sock);
             exit(0);
         }
-        
-        // add    
+         
         current = time(NULL);
         t = localtime(&current);
    
-        // correct
         sprintf(nameAndMsg, "[%d:%d]%s %s", (t->tm_hour + 6) % 24, t->tm_min, name, msg);
         
         if(send(sock, nameAndMsg, strlen(nameAndMsg), 0) != strlen(nameAndMsg)) {
@@ -81,13 +77,11 @@ int main(int argc, char** argv){
         exit(1);
     }
 
-    // add
     if(send(sock_cli, name, sizeof(name),0) != sizeof(name))
     {
     	perror("send error");
     	return 0;
     }
-    //
     
     #pragma omp parallel num_threads(8)
     {
@@ -104,4 +98,4 @@ int main(int argc, char** argv){
          }
     }
     return 0;
-} 
+}
