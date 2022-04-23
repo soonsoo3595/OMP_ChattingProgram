@@ -86,60 +86,40 @@ int main(){
     
     #pragma omp parallel num_threads(3) private(tid, sock_cli)
     {
-    	    tid = omp_get_thread_num();	
-            cli_len = sizeof(cli);
-            sock_cli = accept(sock_ser, (struct sockaddr *) &cli, (socklen_t *) &cli_len);
+    	    while(1)
+    	    {	
+    	   	 tid = omp_get_thread_num();	
+           	 cli_len = sizeof(cli);
+            	sock_cli = accept(sock_ser, (struct sockaddr *) &cli, (socklen_t *) &cli_len);
             
-            if(sock_cli == -1){
-                perror("accept error");
-                exit(1);
-            }
+           	 if(sock_cli == -1){
+           	     perror("accept error");
+           	     exit(1);
+           	 }
             
- 	    // add
- 	    char name[10];
- 	    memset(name,0,sizeof(name));
- 	    if(recv(sock_cli, name, sizeof(name), 0) == -1)
-            {
-            	perror("recv error");
-            	exit(1);
-            }
- 	    //
+ 	   	 // add
+ 	   	    char name[10];
+ 	    	memset(name,0,sizeof(name));
+ 	    	if(recv(sock_cli, name, sizeof(name), 0) == -1)
+            	{
+            		perror("recv error");
+            		exit(1);
+            	}
+ 	    	//
  	    
- 	    omp_set_lock(&lock);
- 	    cli_num++;    	
-            client_sock[tid] = sock_cli;
+ 	    	omp_set_lock(&lock);
+ 	    	cli_num++;    	
+            	client_sock[tid] = sock_cli;
             
-            // add 
-            NAME[tid] = name;
+           	// add 
+         	NAME[tid] = name;
             
-       	    omp_unset_lock(&lock);
+       	   	omp_unset_lock(&lock);
        	    
-            printf("IP : %s client connected, user name : %s\n", inet_ntoa(cli.sin_addr), NAME[tid]);
-            recv_cli(client_sock[tid]);       
+            	printf("IP : %s client connected, user name : %s\n", inet_ntoa(cli.sin_addr), NAME[tid]);
+            	recv_cli(client_sock[tid]);
+            }       
     }
-    
-    /*	origin code 
-    #pragma omp parallel num_threads(3)
-    {
-        #pragma omp for
-        for(int i = 0; i < 3; i++){
-            cli_len = sizeof(cli);
-            sock_cli = accept(sock_ser, (struct sockaddr *) &cli, (socklen_t *) &cli_len);
-            
-            if(sock_cli == -1){
-                perror("accept error");
-                exit(1);
-            }
-            omp_set_lock(&lock);
-            cli_num = num++; 
-            client_sock[cli_num] = sock_cli;
-            omp_unset_lock(&lock);
-            
-            printf("IP : %s client connected, cli num : %d\n", inet_ntoa(cli.sin_addr), cli_num);
-            recv_cli(client_sock[cli_num]);
-        }
-    }
-    */
     
     close(sock_ser);
     return 0;
