@@ -32,7 +32,7 @@ void send_msg(int *sock_cli){
         current = time(NULL);
         t = localtime(&current);
    
-        sprintf(nameAndMsg, "[%d:%d]%s %s", (t->tm_hour + 6) % 24, t->tm_min, name, msg);
+        sprintf(nameAndMsg, "[%d:%d]%s %s", t->tm_hour, t->tm_min, name, msg);
         
         if(send(sock, nameAndMsg, strlen(nameAndMsg), 0) != strlen(nameAndMsg)) {
             perror("send error");
