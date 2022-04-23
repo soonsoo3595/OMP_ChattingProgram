@@ -9,11 +9,10 @@
 #include <unistd.h>
 
 omp_lock_t lock;
-int client_sock[3];
+int client_sock[5];
 int tid; 
 int cli_num = 0;
-// add
-char *NAME[3];
+char *NAME[5];
 
 void send_msg(char* msg, int len){ 
     omp_set_lock(&lock);
@@ -37,20 +36,11 @@ void recv_cli(int sock_cli){
         }
         send_msg(msg, len);
     }
-    
-    // add
+
     printf("%s disconnected....\n",NAME[omp_get_thread_num()]);
     
+    
     omp_set_lock(&lock);
-    for(int i = 0; i <= cli_num; i++){
-        if(sock_cli == client_sock[i]){ 
-            while(i <= cli_num - 1){
-                client_sock[i] = client_sock[i+1];
-                i++;
-            }
-            break;
-        }
-    }
     cli_num--;
     omp_unset_lock(&lock);
     
@@ -84,7 +74,7 @@ int main(){
         exit(1);
     }
     
-    #pragma omp parallel num_threads(3) private(tid, sock_cli)
+    #pragma omp parallel num_threads(5) private(tid, sock_cli)
     {
     	    while(1)
     	    {	
@@ -97,21 +87,18 @@ int main(){
            	     exit(1);
            	 }
             
- 	   	 // add
- 	   	    char name[10];
+ 	   	char name[10];
  	    	memset(name,0,sizeof(name));
  	    	if(recv(sock_cli, name, sizeof(name), 0) == -1)
             	{
             		perror("recv error");
             		exit(1);
             	}
- 	    	//
  	    
  	    	omp_set_lock(&lock);
  	    	cli_num++;    	
             	client_sock[tid] = sock_cli;
             
-           	// add 
          	NAME[tid] = name;
             
        	   	omp_unset_lock(&lock);
